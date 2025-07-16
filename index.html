@@ -51,6 +51,13 @@
   <button onclick="calculatePension()">Estimate Pension</button>
 
   <div class="result" id="resultBox" style="display:none">
+    <p style="font-style: italic; font-size: 14px; color: #555;">Explanation of Fields:</p>
+    <ul style="font-size: 14px; color: #333;">
+      <li><strong>Years Worked:</strong> Difference between your retirement and current age.</li>
+      <li><strong>Pension Points/Year:</strong> Your income divided by the average national income (€50,493).</li>
+      <li><strong>Total Pension Points:</strong> Points per year × years worked.</li>
+      <li><strong>Estimated Monthly Pension:</strong> Total points × €39.32 (value per point as of July 2024).</li>
+    </ul>
     <p><strong>Years Worked:</strong> <span id="yearsWorked"></span></p>
     <p><strong>Pension Points/Year:</strong> <span id="pointsPerYear"></span></p>
     <p><strong>Total Pension Points:</strong> <span id="totalPoints"></span></p>
