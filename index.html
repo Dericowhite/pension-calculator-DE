@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>German Pension Calculator</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 40px;
+      max-width: 600px;
+    }
+    label, input {
+      display: block;
+      margin-bottom: 10px;
+    }
+    input {
+      padding: 8px;
+      width: 100%;
+    }
+    button {
+      margin-top: 15px;
+      padding: 10px 15px;
+      font-size: 16px;
+    }
+    .result {
+      margin-top: 20px;
+      padding: 10px;
+      border: 1px solid #ccc;
+    }
+  </style>
+</head>
+<body>
+  <h1>German Pension Estimator</h1>
+
+  <label for="currentAge">Current Age:</label>
+  <input type="number" id="currentAge" placeholder="e.g. 30" />
+
+  <label for="retirementAge">Retirement Age:</label>
+  <input type="number" id="retirementAge" placeholder="e.g. 67" />
+
+  <label for="annualIncome">Expected Annual Income (€):</label>
+  <input type="number" id="annualIncome" placeholder="e.g. 40000" />
+
+  <label for="avgIncome">Average National Income (€):</label>
+  <input type="number" id="avgIncome" value="45000" />
+
+  <button onclick="calculatePension()">Estimate Pension</button>
+
+  <div class="result" id="resultBox" style="display:none">
+    <p><strong>Years Worked:</strong> <span id="yearsWorked"></span></p>
+    <p><strong>Pension Points/Year:</strong> <span id="pointsPerYear"></span></p>
+    <p><strong>Total Pension Points:</strong> <span id="totalPoints"></span></p>
+    <p><strong>Estimated Monthly Pension:</strong> €<span id="monthlyPension"></span></p>
+  </div>
+
+  <script>
+    function calculatePension() {
+      const currentAge = parseInt(document.getElementById("currentAge").value);
+      const retirementAge = parseInt(document.getElementById("retirementAge").value);
+      const annualIncome = parseFloat(document.getElementById("annualIncome").value);
+      const avgIncome = parseFloat(document.getElementById("avgIncome").value);
+      const pensionValue = 39.32;
+
+      if (isNaN(currentAge) || isNaN(retirementAge) || isNaN(annualIncome) || isNaN(avgIncome)) {
+        alert("Please fill in all fields correctly.");
+        return;
+      }
+
+      const yearsWorked = retirementAge - currentAge;
+      const pointsPerYear = annualIncome / avgIncome;
+      const totalPoints = yearsWorked * pointsPerYear;
+      const monthlyPension = totalPoints * pensionValue;
+
+      document.getElementById("yearsWorked").innerText = yearsWorked;
+      document.getElementById("pointsPerYear").innerText = pointsPerYear.toFixed(2);
+      document.getElementById("totalPoints").innerText = totalPoints.toFixed(2);
+      document.getElementById("monthlyPension").innerText = monthlyPension.toFixed(2);
+
+      document.getElementById("resultBox").style.display = "block";
+    }
+  </script>
+</body>
+</html>
