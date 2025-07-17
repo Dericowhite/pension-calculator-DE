@@ -48,6 +48,9 @@
   <label for="avgIncome">Average National Income (€):</label>
   <input type="number" id="avgIncome" value="50493" />
 
+  <label for="inflationRate">Expected Annual Inflation Rate (%):</label>
+  <input type="number" id="inflationRate" placeholder="e.g. 2 (optional)" />
+
   <button onclick="calculatePension()">Estimate Pension</button>
 
   <div class="result" id="resultBox" style="display:none">
@@ -55,6 +58,7 @@
     <p><strong>Pension Points/Year:</strong> <span id="pointsPerYear"></span></p>
     <p><strong>Total Pension Points:</strong> <span id="totalPoints"></span></p>
     <p><strong>Estimated Monthly Pension:</strong> €<span id="monthlyPension"></span></p>
+<p id="adjustedPensionRow" style="display:none;"><strong>Adjusted Pension (Today's Value):</strong> €<span id="adjustedPension"></span></p>
 
     <hr style="margin: 20px 0;">
     <p style="font-style: italic; font-size: 14px; color: #555;">📘 Explanation of Fields:</p>
@@ -63,7 +67,11 @@
       <li><strong>Pension Points/Year:</strong> Your income divided by the average national income (€50,493).</li>
       <li><strong>Total Pension Points:</strong> Points per year × years worked.</li>
       <li><strong>Estimated Monthly Pension:</strong> Total points × €39.32 (value per point as of July 2024).</li>
+    <li><strong>Adjusted Pension (Today's Value):</strong> Future monthly pension adjusted for inflation.</li>
     </ul>
+    <p style="font-size: 13px; color: #555; margin-top: 10px;">
+      ℹ️ Note: The average long-term inflation rate in Germany is approximately 2% per year.
+    </p>
   </div>
 
   <script>
@@ -83,6 +91,17 @@
       const pointsPerYear = annualIncome / avgIncome;
       const totalPoints = yearsWorked * pointsPerYear;
       const monthlyPension = totalPoints * pensionValue;
+
+      const inflationRateInput = document.getElementById("inflationRate").value;
+      const inflationRate = parseFloat(inflationRateInput) / 100;
+      let adjustedPension = null;
+      if (!isNaN(inflationRate) && inflationRate > 0) {
+        adjustedPension = monthlyPension / Math.pow(1 + inflationRate, yearsWorked);
+        document.getElementById("adjustedPension").innerText = adjustedPension.toFixed(2);
+        document.getElementById("adjustedPensionRow").style.display = "block";
+      } else {
+        document.getElementById("adjustedPensionRow").style.display = "none";
+      }
 
       document.getElementById("yearsWorked").innerText = yearsWorked;
       document.getElementById("pointsPerYear").innerText = pointsPerYear.toFixed(2);
