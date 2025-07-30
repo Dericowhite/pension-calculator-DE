@@ -61,8 +61,11 @@
   <label for="inflationRate">Expected Annual Inflation Rate (%):</label>
   <input type="number" id="inflationRate" placeholder="e.g. 2 (optional)" />
 
-  <label for="etfContribution">Monthly ETF Contribution (€):</label>
-  <input type="number" id="etfContribution" placeholder="e.g. 200 (optional)" />
+  <label for="etfMonthly">Monthly ETF Contribution (€):</label>
+  <input type="number" id="etfMonthly" placeholder="e.g. 200 (optional)" />
+
+  <label for="etfAnnual">Annual ETF Contribution (€):</label>
+  <input type="number" id="etfAnnual" placeholder="e.g. 2400 (optional)" />
 
   <label for="etfReturn">Expected Annual ETF Return (%):</label>
   <input type="number" id="etfReturn" placeholder="e.g. 6 (optional)" />
@@ -81,7 +84,8 @@
         <p><strong>Adjusted Net Pension (Today's Value):</strong> €<span id="adjustedNetPension"></span></p>
 
         <div id="etfSection">
-          <p><strong>📊 Private ETF Value at Retirement:</strong> €<span id="etfFutureValue"></span></p>
+          <p><strong>📊 Private ETF Value at Retirement (After Tax):</strong> €<span id="etfFutureValue"></span></p>
+          <p><em>Compound growth means you earn interest not only on your contributions but also on the interest already earned. This can significantly increase your final savings over time.</em></p>
         </div>
 
         <p><strong>📘 Explanation of Fields:</strong></p>
@@ -93,7 +97,7 @@
           <li><strong>Adjusted Pension (Today's Value):</strong> Future monthly pension adjusted for inflation.</li>
           <li><strong>Estimated Net Pension:</strong> Approximate value after deducting 10% for health/care insurance and 10% income tax.</li>
           <li><strong>Adjusted Net Pension (Today's Value):</strong> Net pension adjusted for inflation (what it would be worth in today’s money).</li>
-          <li><strong>Private ETF Value:</strong> Total amount saved from monthly ETF contributions with compound growth.</li>
+          <li><strong>Private ETF Value:</strong> Total saved from monthly and/or annual ETF contributions with compound growth, minus 12.5% capital gains tax on profit.</li>
         </ul>
         <p class="note">🧠 <strong>Note:</strong> The average long-term inflation rate in Germany is approximately 2% per year.</p>
 
@@ -114,7 +118,8 @@
       const annualIncome = parseFloat(document.getElementById("annualIncome").value);
       const avgIncome = parseFloat(document.getElementById("avgIncome").value);
       const inflationRateInput = parseFloat(document.getElementById("inflationRate").value);
-      const etfContribution = parseFloat(document.getElementById("etfContribution").value);
+      const etfMonthly = parseFloat(document.getElementById("etfMonthly").value);
+      const etfAnnual = parseFloat(document.getElementById("etfAnnual").value);
       const etfReturn = parseFloat(document.getElementById("etfReturn").value);
       const pensionValue = 40.79;
 
@@ -143,11 +148,24 @@
       const netPension = monthlyPension * 0.80;
 
       let etfFutureValue = 0;
-      if (!isNaN(etfContribution) && !isNaN(etfReturn) && etfContribution > 0 && etfReturn > 0) {
+      if (!isNaN(etfReturn) && etfReturn > 0) {
         const r = etfReturn / 100;
         const n = yearsWorked;
-        const annualContribution = etfContribution * 12;
-        etfFutureValue = annualContribution * ((Math.pow(1 + r, n) - 1) / r);
+        let totalAnnual = 0;
+
+        if (!isNaN(etfMonthly) && etfMonthly > 0) {
+          totalAnnual += etfMonthly * 12;
+        }
+        if (!isNaN(etfAnnual) && etfAnnual > 0) {
+          totalAnnual += etfAnnual;
+        }
+
+        if (totalAnnual > 0) {
+          const grossValue = totalAnnual * ((Math.pow(1 + r, n) - 1) / r);
+          const profit = grossValue - (totalAnnual * n);
+          const tax = profit * 0.125;
+          etfFutureValue = grossValue - tax;
+        }
       }
 
       document.getElementById("yearsWorked").innerText = yearsWorked;
