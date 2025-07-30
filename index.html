@@ -133,23 +133,93 @@
     const translations = {
       en: {
         title: "German Pension Estimator",
-        estimate: "Estimate Pension"
-      },
-      de: {
-        title: "Deutscher Rentenrechner",
-        estimate: "Rente berechnen"
+        estimate: "Estimate Pension",
+        careerStart: "Career Start Age:",
+        retirementAge: "Retirement Age:",
+        annualIncome: "Expected Annual Income (€):",
+        avgIncome: "Average National Income (€):",
+        inflation: "Expected Annual Inflation Rate (%):",
+        etfMonthly: "Monthly ETF Contribution (€):",
+        etfAnnual: "Annual ETF Contribution (€):",
+        etfReturn: "Expected Annual ETF Return (%):",
+        placeholders: {
+          careerStart: "e.g. 25",
+          retirementAge: "e.g. 67",
+          annualIncome: "e.g. 40000",
+          inflation: "e.g. 2 (optional)",
+          etfMonthly: "e.g. 200 (optional)",
+          etfAnnual: "e.g. 2400 (optional)",
+          etfReturn: "e.g. 6 (optional)"
+        }
       },
       fr: {
         title: "Calculateur de retraite allemand",
-        estimate: "Estimer la retraite"
+        estimate: "Estimer la retraite",
+        careerStart: "Âge de début de carrière :",
+        retirementAge: "Âge de la retraite :",
+        annualIncome: "Revenu annuel attendu (€) :",
+        avgIncome: "Revenu national moyen (€) :",
+        inflation: "Taux d'inflation annuel prévu (%) :",
+        etfMonthly: "Cotisation mensuelle ETF (€) :",
+        etfAnnual: "Cotisation annuelle ETF (€) :",
+        etfReturn: "Rendement annuel prévu de l’ETF (%) :",
+        placeholders: {
+          careerStart: "ex. 25",
+          retirementAge: "ex. 67",
+          annualIncome: "ex. 40000",
+          inflation: "ex. 2 (optionnel)",
+          etfMonthly: "ex. 200 (optionnel)",
+          etfAnnual: "ex. 2400 (optionnel)",
+          etfReturn: "ex. 6 (optionnel)"
+        }
+      },
+      de: {
+        title: "Deutscher Rentenrechner",
+        estimate: "Rente berechnen",
+        careerStart: "Berufseinstiegsalter:",
+        retirementAge: "Rentenalter:",
+        annualIncome: "Erwartetes Jahreseinkommen (€):",
+        avgIncome: "Durchschnittliches Einkommen (€):",
+        inflation: "Erwartete jährliche Inflationsrate (%):",
+        etfMonthly: "Monatlicher ETF-Beitrag (€):",
+        etfAnnual: "Jährlicher ETF-Beitrag (€):",
+        etfReturn: "Erwartete jährliche ETF-Rendite (%):",
+        placeholders: {
+          careerStart: "z.B. 25",
+          retirementAge: "z.B. 67",
+          annualIncome: "z.B. 40000",
+          inflation: "z.B. 2 (optional)",
+          etfMonthly: "z.B. 200 (optional)",
+          etfAnnual: "z.B. 2400 (optional)",
+          etfReturn: "z.B. 6 (optional)"
+        }
       }
     };
 
     function switchLanguage() {
       const lang = document.getElementById('languageSelect').value;
-      document.title = translations[lang].title;
-      document.querySelector('h1').innerText = translations[lang].title;
-      document.querySelector('button').innerText = translations[lang].estimate;
+      const t = translations[lang];
+
+      document.title = t.title;
+      document.querySelector('h1').innerText = t.title;
+      document.querySelector('button').innerText = t.estimate;
+
+      document.querySelector("label[for='careerStartAge']").innerText = t.careerStart;
+      document.querySelector("label[for='retirementAge']").innerText = t.retirementAge;
+      document.querySelector("label[for='annualIncome']").innerText = t.annualIncome;
+      document.querySelector("label[for='avgIncome']").innerText = t.avgIncome;
+      document.querySelector("label[for='inflationRate']").innerText = t.inflation;
+      document.querySelector("label[for='etfMonthly']").innerText = t.etfMonthly;
+      document.querySelector("label[for='etfAnnual']").innerText = t.etfAnnual;
+      document.querySelector("label[for='etfReturn']").innerText = t.etfReturn;
+
+      document.getElementById("careerStartAge").placeholder = t.placeholders.careerStart;
+      document.getElementById("retirementAge").placeholder = t.placeholders.retirementAge;
+      document.getElementById("annualIncome").placeholder = t.placeholders.annualIncome;
+      document.getElementById("inflationRate").placeholder = t.placeholders.inflation;
+      document.getElementById("etfMonthly").placeholder = t.placeholders.etfMonthly;
+      document.getElementById("etfAnnual").placeholder = t.placeholders.etfAnnual;
+      document.getElementById("etfReturn").placeholder = t.placeholders.etfReturn;
     }
   </script>
 </body>
