@@ -41,9 +41,6 @@
       margin-top: 10px;
       color: #444;
     }
-    .toggle-section {
-      margin-top: 20px;
-    }
   </style>
 </head>
 <body>
@@ -70,11 +67,6 @@
   <label for="etfReturn">Expected Annual ETF Return (%):</label>
   <input type="number" id="etfReturn" placeholder="e.g. 6 (optional)" />
 
-  <div class="toggle-section">
-    <input type="checkbox" id="showCombined" checked />
-    <label for="showCombined">Show Pension + ETF Combined View</label>
-  </div>
-
   <button onclick="calculatePension()">Estimate Pension</button>
 
   <div id="results" style="display:none;">
@@ -97,7 +89,7 @@
           <li><strong>Years Worked:</strong> Difference between retirement and career start age.</li>
           <li><strong>Pension Points/Year:</strong> Your income divided by the average national income (€50,493).</li>
           <li><strong>Total Pension Points:</strong> Points per year × years worked.</li>
-          <li><strong>Estimated Monthly Pension:</strong> Total points × €39.32 (value per point as of July 2024).</li>
+          <li><strong>Estimated Monthly Pension:</strong> Total points × €40.79 (value per point as of July 2024).</li>
           <li><strong>Adjusted Pension (Today's Value):</strong> Future monthly pension adjusted for inflation.</li>
           <li><strong>Estimated Net Pension:</strong> Approximate value after deducting 10% for health/care insurance and 10% income tax.</li>
           <li><strong>Adjusted Net Pension (Today's Value):</strong> Net pension adjusted for inflation (what it would be worth in today’s money).</li>
@@ -124,7 +116,7 @@
       const inflationRateInput = parseFloat(document.getElementById("inflationRate").value);
       const etfContribution = parseFloat(document.getElementById("etfContribution").value);
       const etfReturn = parseFloat(document.getElementById("etfReturn").value);
-      const pensionValue = 39.32;
+      const pensionValue = 40.79;
 
       if (isNaN(careerStartAge) || isNaN(retirementAge) || isNaN(annualIncome) || isNaN(avgIncome)) {
         alert("Please fill in all fields correctly.");
@@ -167,7 +159,6 @@
       document.getElementById("adjustedNetPension").innerText = adjustedNetPension.toFixed(2);
       document.getElementById("etfFutureValue").innerText = etfFutureValue.toFixed(2);
 
-      document.getElementById("etfSection").style.display = document.getElementById("showCombined").checked ? "block" : "none";
       document.getElementById("results").style.display = "block";
     }
   </script>
