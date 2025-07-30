@@ -11,7 +11,7 @@
     body {
       font-family: Arial, sans-serif;
       margin: 40px;
-      max-width: 1000px;
+      max-width: 1200px;
     }
     label, input {
       display: block;
@@ -41,7 +41,12 @@
       margin-top: 10px;
       color: #444;
     }
+    #pensionChart {
+      width: 100%;
+      height: 300px;
+    }
   </style>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
   <h1>German Pension Estimator</h1>
@@ -93,6 +98,9 @@
           <li><strong>Long-Term Care Insurance (Pflegeversicherung):</strong> Typically around 3.4% as of 2024.</li>
         </ul>
       </div>
+      <div class="box">
+        <canvas id="pensionChart"></canvas>
+      </div>
     </div>
   </div>
 
@@ -138,6 +146,39 @@
       document.getElementById("adjustedNetPension").innerText = adjustedNetPension.toFixed(2);
 
       document.getElementById("results").style.display = "block";
+
+      const ctx = document.getElementById('pensionChart').getContext('2d');
+      if (window.pensionChartInstance) {
+        window.pensionChartInstance.destroy();
+      }
+      window.pensionChartInstance = new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels: Array.from({length: yearsWorked}, (_, i) => careerStartAge + i + 1),
+          datasets: [{
+            label: 'Nominal Pension (€)',
+            data: Array(yearsWorked).fill(monthlyPension),
+            borderColor: 'blue',
+            fill: false
+          }, {
+            label: 'Inflation-adjusted Pension (€)',
+            data: Array.from({length: yearsWorked}, (_, i) => monthlyPension / Math.pow(1 + (inflationRateInput || 0) / 100, i + 1)),
+            borderColor: 'green',
+            fill: false
+          }]
+        },
+        options: {
+          responsive: true,
+          plugins: {
+            legend: { position: 'bottom' }
+          },
+          scales: {
+            y: {
+              beginAtZero: true
+            }
+          }
+        }
+      });
     }
   </script>
 </body>
