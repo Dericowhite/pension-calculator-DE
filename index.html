@@ -11,7 +11,7 @@
     body {
       font-family: Arial, sans-serif;
       margin: 40px;
-      max-width: 1200px;
+      max-width: 600px;
     }
     label, input {
       display: block;
@@ -19,133 +19,129 @@
     }
     input {
       padding: 8px;
-      width: 300px;
+      width: 100%;
     }
-    button, select {
+    button {
       margin-top: 15px;
       padding: 10px 15px;
       font-size: 16px;
     }
-    .flex-container {
-      display: flex;
-      gap: 20px;
+    .result {
       margin-top: 20px;
-    }
-    .box {
-      flex: 1;
       padding: 10px;
       border: 1px solid #ccc;
-    }
-    .note {
-      font-size: 0.9em;
-      margin-top: 10px;
-      color: #444;
     }
   </style>
 </head>
 <body>
-  <h1 id="title">German Pension Estimator</h1>
+  <h1>German Pension Estimator</h1>
 
-  <label for="languageSelect">🌐 Language:</label>
-  <select id="languageSelect" onchange="switchLanguage()">
-    <option value="en">English</option>
-    <option value="de">Deutsch</option>
-    <option value="fr">Français</option>
-  </select>
-
-  <label for="careerStartAge" id="labelCareerStart">Career Start Age:</label>
+  <label for="careerStartAge">Career Start Age:</label>
   <input type="number" id="careerStartAge" placeholder="e.g. 25" />
 
-  <label for="retirementAge" id="labelRetirement">Retirement Age:</label>
+  <label for="retirementAge">Retirement Age:</label>
   <input type="number" id="retirementAge" placeholder="e.g. 67" />
 
-  <label for="annualIncome" id="labelAnnualIncome">Expected Annual Income (€):</label>
+  <label for="annualIncome">Expected Annual Income (€):</label>
   <input type="number" id="annualIncome" placeholder="e.g. 40000" />
 
-  <label for="avgIncome" id="labelAvgIncome">Average National Income (€):</label>
+  <label for="avgIncome">Average National Income (€):</label>
   <input type="number" id="avgIncome" value="50493" />
 
-  <label for="inflationRate" id="labelInflation">Expected Annual Inflation Rate (%):</label>
+  <label for="inflationRate">Expected Annual Inflation Rate (%):</label>
   <input type="number" id="inflationRate" placeholder="e.g. 2 (optional)" />
 
-  <label for="etfMonthly" id="labelEtfMonthly">Monthly ETF Contribution (€):</label>
+  <label for="etfMonthly">Monthly ETF Contribution (€):</label>
   <input type="number" id="etfMonthly" placeholder="e.g. 200 (optional)" />
 
-  <label for="etfAnnual" id="labelEtfAnnual">Annual ETF Contribution (€):</label>
+  <label for="etfAnnual">Annual ETF Contribution (€):</label>
   <input type="number" id="etfAnnual" placeholder="e.g. 2400 (optional)" />
 
-  <label for="etfReturn" id="labelEtfReturn">Expected Annual ETF Return (%):</label>
+  <label for="etfReturn">Expected Annual ETF Return (%):</label>
   <input type="number" id="etfReturn" placeholder="e.g. 6 (optional)" />
 
-  <button id="estimateBtn">Estimate Pension</button>
+  <button onclick="calculatePension()">Estimate Pension</button>
 
-  <div id="results" style="display:none;"></div>
+  <div class="result" id="resultBox" style="display:none"></div>
 
   <script>
-    const translations = {
-      en: {
-        title: "German Pension Estimator",
-        estimate: "Estimate Pension",
-        careerStart: "Career Start Age:",
-        retirementAge: "Retirement Age:",
-        annualIncome: "Expected Annual Income (€):",
-        avgIncome: "Average National Income (€):",
-        inflation: "Expected Annual Inflation Rate (%):",
-        etfMonthly: "Monthly ETF Contribution (€):",
-        etfAnnual: "Annual ETF Contribution (€):",
-        etfReturn: "Expected Annual ETF Return (%):",
-        results: "Estimated Results"
-      },
-      fr: {
-        title: "Calculateur de retraite allemand",
-        estimate: "Estimer la retraite",
-        careerStart: "Âge de début de carrière :",
-        retirementAge: "Âge de la retraite :",
-        annualIncome: "Revenu annuel attendu (€) :",
-        avgIncome: "Revenu national moyen (€) :",
-        inflation: "Taux d'inflation annuel prévu (%) :",
-        etfMonthly: "Cotisation mensuelle ETF (€) :",
-        etfAnnual: "Cotisation annuelle ETF (€) :",
-        etfReturn: "Rendement annuel prévu de l’ETF (%) :",
-        results: "Résultats estimés"
-      },
-      de: {
-        title: "Deutscher Rentenrechner",
-        estimate: "Rente berechnen",
-        careerStart: "Berufseinstiegsalter:",
-        retirementAge: "Rentenalter:",
-        annualIncome: "Erwartetes Jahreseinkommen (€):",
-        avgIncome: "Durchschnittliches Einkommen (€):",
-        inflation: "Erwartete jährliche Inflationsrate (%):",
-        etfMonthly: "Monatlicher ETF-Beitrag (€):",
-        etfAnnual: "Jährlicher ETF-Beitrag (€):",
-        etfReturn: "Erwartete jährliche ETF-Rendite (%):",
-        results: "Geschätzte Ergebnisse"
+    function calculatePension() {
+      const careerStartAge = parseInt(document.getElementById("careerStartAge").value);
+      const retirementAge = parseInt(document.getElementById("retirementAge").value);
+      const annualIncome = parseFloat(document.getElementById("annualIncome").value);
+      const avgIncome = parseFloat(document.getElementById("avgIncome").value);
+      const inflationRateInput = document.getElementById("inflationRate").value;
+      const etfMonthly = parseFloat(document.getElementById("etfMonthly").value) || 0;
+      const etfAnnual = parseFloat(document.getElementById("etfAnnual").value) || 0;
+      const etfReturn = parseFloat(document.getElementById("etfReturn").value) / 100 || 0;
+      const pensionValue = 40.79;
+
+      if (isNaN(careerStartAge) || isNaN(retirementAge) || isNaN(annualIncome) || isNaN(avgIncome)) {
+        alert("Please fill in all fields correctly.");
+        return;
       }
-    };
 
-    function switchLanguage() {
-      const lang = document.getElementById('languageSelect').value;
-      const t = translations[lang];
-
-      document.title = t.title;
-      document.getElementById('title').innerText = t.title;
-      document.getElementById('estimateBtn').innerText = t.estimate;
-
-      document.getElementById("labelCareerStart").innerText = t.careerStart;
-      document.getElementById("labelRetirement").innerText = t.retirementAge;
-      document.getElementById("labelAnnualIncome").innerText = t.annualIncome;
-      document.getElementById("labelAvgIncome").innerText = t.avgIncome;
-      document.getElementById("labelInflation").innerText = t.inflation;
-      document.getElementById("labelEtfMonthly").innerText = t.etfMonthly;
-      document.getElementById("labelEtfAnnual").innerText = t.etfAnnual;
-      document.getElementById("labelEtfReturn").innerText = t.etfReturn;
-
-      // Translate results heading if visible
-      const resultsDiv = document.getElementById("results");
-      if (resultsDiv.style.display !== "none") {
-        resultsDiv.innerHTML = `<h2>${t.results}</h2>` + resultsDiv.innerHTML.split('</h2>')[1];
+      const yearsWorked = retirementAge - careerStartAge;
+      if (yearsWorked <= 0) {
+        alert("Invalid input: Retirement age must be greater than career start age.");
+        return;
       }
+
+      const pointsPerYear = annualIncome / avgIncome;
+      const totalPoints = yearsWorked * pointsPerYear;
+      const monthlyPension = totalPoints * pensionValue;
+
+      const inflationRate = parseFloat(inflationRateInput) / 100;
+      let adjustedPension = null;
+      if (!isNaN(inflationRate) && inflationRate > 0) {
+        adjustedPension = monthlyPension / Math.pow(1 + inflationRate, yearsWorked);
+      }
+
+      const netRate = 0.80;
+      const netPension = monthlyPension * netRate;
+      const adjustedNetPension = (!isNaN(inflationRate) && inflationRate > 0)
+        ? netPension / Math.pow(1 + inflationRate, yearsWorked)
+        : null;
+
+      // ETF Growth
+      let totalContributions = 0;
+      let etfFutureValue = 0;
+      for (let year = 1; year <= yearsWorked; year++) {
+        totalContributions += etfMonthly * 12 + etfAnnual;
+        etfFutureValue = (etfFutureValue + etfMonthly * 12 + etfAnnual) * (1 + etfReturn);
+      }
+      const etfAfterTax = etfFutureValue * 0.875;
+
+      let html = `<h2>Estimated Results</h2>`;
+      html += `<p><strong>Years Worked:</strong> ${yearsWorked}</p>`;
+      html += `<p><strong>Pension Points/Year:</strong> ${pointsPerYear.toFixed(2)}</p>`;
+      html += `<p><strong>Total Pension Points:</strong> ${totalPoints.toFixed(2)}</p>`;
+      html += `<p><strong>Estimated Monthly Pension:</strong> €${monthlyPension.toFixed(2)}</p>`;
+      if (adjustedPension !== null) html += `<p><strong>Adjusted Pension (Today's Value):</strong> €${adjustedPension.toFixed(2)}</p>`;
+      html += `<p><strong>Estimated Net Pension (After Tax + Insurance):</strong> €${netPension.toFixed(2)}</p>`;
+      if (adjustedNetPension !== null) html += `<p><strong>Adjusted Net Pension (Today's Value):</strong> €${adjustedNetPension.toFixed(2)}</p>`;
+      if (etfAfterTax > 0) {
+        html += `<p><strong>📊 Private ETF Value at Retirement (After Tax):</strong> €${etfAfterTax.toFixed(2)}</p>`;
+      }
+
+      html += `<div class="note">
+        <strong>📘 Explanation of Fields:</strong>
+        <ul>
+          <li><strong>Years Worked:</strong> Difference between retirement and career start age.</li>
+          <li><strong>Pension Points/Year:</strong> Your income divided by the average national income (€50,493).</li>
+          <li><strong>Total Pension Points:</strong> Points per year × years worked.</li>
+          <li><strong>Estimated Monthly Pension:</strong> Total points × €40.79 (value per point as of July 2024).</li>
+          <li><strong>Adjusted Pension (Today's Value):</strong> Future monthly pension adjusted for inflation.</li>
+          <li><strong>Estimated Net Pension:</strong> Approximate value after deducting 10% for health/care insurance and 10% income tax.</li>
+          <li><strong>Adjusted Net Pension (Today's Value):</strong> Net pension adjusted for inflation (what it would be worth in today’s money).</li>
+          <li><strong>Private ETF Value:</strong> Total amount saved from monthly or annual ETF contributions with compound growth (after 12.5% tax).</li>
+        </ul>
+        <p><em>📌 These are approximate estimates. Actual pension values may vary depending on factors like career breaks, parental leave, part-time employment, or statutory changes.</em></p>
+        <p><strong>💡 Compound Growth:</strong> Investment gains are reinvested each year, allowing savings to grow faster over time.</p>
+      </div>`;
+
+      document.getElementById("resultBox").innerHTML = html;
+      document.getElementById("resultBox").style.display = "block";
     }
   </script>
 </body>
