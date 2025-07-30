@@ -66,6 +66,32 @@
     <p id="adjustedNetPensionRow" style="display:none;"><strong>Adjusted Net Pension (Today's Value):</strong> €<span id="adjustedNetPension"></span></p>
   </div>
 
+  <!-- Explanation and Footnotes -->
+  <hr style="margin: 20px 0;">
+  <p style="font-style: italic; font-size: 14px; color: #555;">📘 Explanation of Fields:</p>
+  <ul style="font-size: 14px; color: #333;">
+    <li><strong>Years Worked:</strong> Number of years between career start and retirement age.</li>
+    <li><strong>Pension Points/Year:</strong> Your income divided by the average national income (€50,493).</li>
+    <li><strong>Total Pension Points:</strong> Points per year × years worked.</li>
+    <li><strong>Estimated Monthly Pension:</strong> Total points × €39.32 (value per point as of July 2024).</li>
+    <li><strong>Adjusted Pension (Today's Value):</strong> Future monthly pension adjusted for inflation.</li>
+    <li><strong>Estimated Net Pension:</strong> Approximate value after deducting 10% for health/care insurance and 10% income tax (adjustable).</li>
+    <li><strong>Adjusted Net Pension (Today's Value):</strong> Estimated net pension adjusted for inflation (what it would be worth in today's money).</li>
+  </ul>
+
+  <p style="font-size: 13px; color: #555; margin-top: 10px;">
+    ℹ️ Note: The average long-term inflation rate in Germany is approximately 2% per year.
+  </p>
+
+  <div style="font-size: 13px; color: #333; background: #f9f9f9; padding: 10px; border-left: 4px solid #ccc; margin-top: 15px;">
+    <p><strong>💡 Net Pension Deductions Explained:</strong></p>
+    <ul>
+      <li><strong>Income Tax (Einkommensteuer):</strong> Pensions are partially taxable based on your retirement year and total income. The taxable portion increases annually and will reach 100% in 2040. For example, if you retire in 2025, about 85% of your pension is taxable.</li>
+      <li><strong>Health Insurance (KVdR):</strong> Around 7.3% plus an additional supplemental rate (~1.6%). When you retire, you pay the full amount (no employer share).</li>
+      <li><strong>Long-Term Care Insurance (Pflegeversicherung):</strong> Typically around 3.4% as of 2024.</li>
+    </ul>
+  </div>
+
   <!-- Graph Canvas -->
   <canvas id="pensionChart" width="600" height="300" style="display:none;"></canvas>
 
@@ -73,7 +99,7 @@
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
   <script>
-    let pensionChart; // Keep reference to the chart
+    let pensionChart;
 
     function calculatePension() {
       const careerStart = parseInt(document.getElementById("careerStart").value);
@@ -102,19 +128,22 @@
 
       const inflationRateInput = document.getElementById("inflationRate").value;
       const inflationRate = parseFloat(inflationRateInput) / 100;
-      let adjustedPension = null;
-      if (!isNaN(inflationRate) && inflationRate > 0) {
-        adjustedPension = monthlyPension / Math.pow(1 + inflationRate, yearsWorked);
-        document.getElementById("adjustedPension").innerText = adjustedPension.toFixed(2);
-        document.getElementById("adjustedPensionRow").style.display = "block";
-      } else {
-        document.getElementById("adjustedPensionRow").style.display = "none";
-      }
+
+      const adjustedPension = !isNaN(inflationRate) && inflationRate > 0
+        ? monthlyPension / Math.pow(1 + inflationRate, yearsWorked)
+        : null;
 
       document.getElementById("yearsWorked").innerText = yearsWorked;
       document.getElementById("pointsPerYear").innerText = pointsPerYear.toFixed(2);
       document.getElementById("totalPoints").innerText = totalPoints.toFixed(2);
       document.getElementById("monthlyPension").innerText = monthlyPension.toFixed(2);
+
+      if (adjustedPension !== null) {
+        document.getElementById("adjustedPension").innerText = adjustedPension.toFixed(2);
+        document.getElementById("adjustedPensionRow").style.display = "block";
+      } else {
+        document.getElementById("adjustedPensionRow").style.display = "none";
+      }
 
       const netRate = 0.80;
       const netPension = monthlyPension * netRate;
@@ -131,7 +160,7 @@
 
       document.getElementById("resultBox").style.display = "block";
 
-      // Generate data for chart
+      // Graph
       const years = [];
       const nominalData = [];
       const adjustedData = [];
@@ -145,7 +174,6 @@
           : pensionAtYear);
       }
 
-      // Create or update chart
       const ctx = document.getElementById('pensionChart').getContext('2d');
       if (pensionChart) pensionChart.destroy();
       pensionChart = new Chart(ctx, {
