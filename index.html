@@ -36,8 +36,8 @@
 <body>
   <h1>German Pension Estimator</h1>
 
-  <label for="currentAge">Current Age:</label>
-  <input type="number" id="currentAge" placeholder="e.g. 30" />
+  <label for="careerStart">Career Start Year:</label>
+  <input type="number" id="careerStart" placeholder="e.g. 2015" />
 
   <label for="retirementAge">Retirement Age:</label>
   <input type="number" id="retirementAge" placeholder="e.g. 67" />
@@ -58,18 +58,18 @@
     <p><strong>Pension Points/Year:</strong> <span id="pointsPerYear"></span></p>
     <p><strong>Total Pension Points:</strong> <span id="totalPoints"></span></p>
     <p><strong>Estimated Monthly Pension:</strong> €<span id="monthlyPension"></span></p>
-<p id="adjustedPensionRow" style="display:none;"><strong>Adjusted Pension (Today's Value):</strong> €<span id="adjustedPension"></span></p>
-<p id="netPensionRow" style="display:none;"><strong>Estimated Net Pension (After Tax + Insurance):</strong> €<span id="netPension"></span></p>
-<p id="adjustedNetPensionRow" style="display:none;"><strong>Adjusted Net Pension (Today's Value):</strong> €<span id="adjustedNetPension"></span></p>
+    <p id="adjustedPensionRow" style="display:none;"><strong>Adjusted Pension (Today's Value):</strong> €<span id="adjustedPension"></span></p>
+    <p id="netPensionRow" style="display:none;"><strong>Estimated Net Pension (After Tax + Insurance):</strong> €<span id="netPension"></span></p>
+    <p id="adjustedNetPensionRow" style="display:none;"><strong>Adjusted Net Pension (Today's Value):</strong> €<span id="adjustedNetPension"></span></p>
 
     <hr style="margin: 20px 0;">
     <p style="font-style: italic; font-size: 14px; color: #555;">📘 Explanation of Fields:</p>
     <ul style="font-size: 14px; color: #333;">
-      <li><strong>Years Worked:</strong> Difference between your retirement and current age.</li>
+      <li><strong>Years Worked:</strong> Number of years between career start and retirement age.</li>
       <li><strong>Pension Points/Year:</strong> Your income divided by the average national income (€50,493).</li>
       <li><strong>Total Pension Points:</strong> Points per year × years worked.</li>
       <li><strong>Estimated Monthly Pension:</strong> Total points × €39.32 (value per point as of July 2024).</li>
-    <li><strong>Adjusted Pension (Today's Value):</strong> Future monthly pension adjusted for inflation.</li>
+      <li><strong>Adjusted Pension (Today's Value):</strong> Future monthly pension adjusted for inflation.</li>
       <li><strong>Estimated Net Pension:</strong> Approximate value after deducting 10% for health/care insurance and 10% income tax (adjustable).</li>
       <li><strong>Adjusted Net Pension (Today's Value):</strong> Estimated net pension adjusted for inflation (what it would be worth in today's money).</li>
     </ul>
@@ -88,18 +88,26 @@
 
   <script>
     function calculatePension() {
-      const currentAge = parseInt(document.getElementById("currentAge").value);
+      const careerStart = parseInt(document.getElementById("careerStart").value);
       const retirementAge = parseInt(document.getElementById("retirementAge").value);
       const annualIncome = parseFloat(document.getElementById("annualIncome").value);
       const avgIncome = parseFloat(document.getElementById("avgIncome").value);
       const pensionValue = 39.32;
 
-      if (isNaN(currentAge) || isNaN(retirementAge) || isNaN(annualIncome) || isNaN(avgIncome)) {
+      if (isNaN(careerStart) || isNaN(retirementAge) || isNaN(annualIncome) || isNaN(avgIncome)) {
         alert("Please fill in all fields correctly.");
         return;
       }
 
+      const currentYear = new Date().getFullYear();
+      const currentAge = currentYear - careerStart;
       const yearsWorked = retirementAge - currentAge;
+
+      if (yearsWorked <= 0) {
+        alert("Invalid input: Retirement age must be greater than your current age.");
+        return;
+      }
+
       const pointsPerYear = annualIncome / avgIncome;
       const totalPoints = yearsWorked * pointsPerYear;
       const monthlyPension = totalPoints * pensionValue;
@@ -120,13 +128,11 @@
       document.getElementById("totalPoints").innerText = totalPoints.toFixed(2);
       document.getElementById("monthlyPension").innerText = monthlyPension.toFixed(2);
 
-      // Estimate net pension (approx. 10% insurance + 10% tax)
-      const netRate = 0.80; // 20% total deductions (adjustable)
+      const netRate = 0.80;
       const netPension = monthlyPension * netRate;
       document.getElementById("netPension").innerText = netPension.toFixed(2);
       document.getElementById("netPensionRow").style.display = "block";
 
-      // Adjusted net pension after inflation (optional)
       if (!isNaN(inflationRate) && inflationRate > 0) {
         const adjustedNetPension = netPension / Math.pow(1 + inflationRate, yearsWorked);
         document.getElementById("adjustedNetPension").innerText = adjustedNetPension.toFixed(2);
