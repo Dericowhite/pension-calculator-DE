@@ -21,7 +21,7 @@
       padding: 8px;
       width: 300px;
     }
-    button, select {
+    button {
       margin-top: 15px;
       padding: 10px 15px;
       font-size: 16px;
@@ -41,21 +41,10 @@
       margin-top: 10px;
       color: #444;
     }
-    canvas {
-      max-width: 500px;
-      max-height: 300px;
-    }
   </style>
 </head>
 <body>
   <h1>German Pension Estimator</h1>
-
-  <label for="languageSelect">🌐 Language:</label>
-  <select id="languageSelect" onchange="switchLanguage()">
-    <option value="en">English</option>
-    <option value="de">Deutsch</option>
-    <option value="fr">Français</option>
-  </select>
 
   <label for="careerStartAge">Career Start Age:</label>
   <input type="number" id="careerStartAge" placeholder="e.g. 25" />
@@ -72,11 +61,8 @@
   <label for="inflationRate">Expected Annual Inflation Rate (%):</label>
   <input type="number" id="inflationRate" placeholder="e.g. 2 (optional)" />
 
-  <label for="etfMonthly">Monthly ETF Contribution (€):</label>
-  <input type="number" id="etfMonthly" placeholder="e.g. 200 (optional)" />
-
-  <label for="etfAnnual">Annual ETF Contribution (€):</label>
-  <input type="number" id="etfAnnual" placeholder="e.g. 2400 (optional)" />
+  <label for="etfContribution">Monthly ETF Contribution (€):</label>
+  <input type="number" id="etfContribution" placeholder="e.g. 200 (optional)" />
 
   <label for="etfReturn">Expected Annual ETF Return (%):</label>
   <input type="number" id="etfReturn" placeholder="e.g. 6 (optional)" />
@@ -86,7 +72,6 @@
   <div id="results" style="display:none;">
     <div class="flex-container">
       <div class="box">
-        <!-- Pension details output -->
         <p><strong>Years Worked:</strong> <span id="yearsWorked"></span></p>
         <p><strong>Pension Points/Year:</strong> <span id="pointsPerYear"></span></p>
         <p><strong>Total Pension Points:</strong> <span id="totalPoints"></span></p>
@@ -96,13 +81,9 @@
         <p><strong>Adjusted Net Pension (Today's Value):</strong> €<span id="adjustedNetPension"></span></p>
 
         <div id="etfSection">
-          <p><strong>📊 Private ETF Value at Retirement (After Tax):</strong> €<span id="etfFutureValue"></span></p>
-          <p><em>Compound growth means you earn interest not only on your contributions but also on the interest already earned. This can significantly increase your final savings over time.</em></p>
+          <p><strong>📊 Private ETF Value at Retirement:</strong> €<span id="etfFutureValue"></span></p>
         </div>
 
-        <canvas id="comparisonChart"></canvas>
-
-        <!-- Explanatory text -->
         <p><strong>📘 Explanation of Fields:</strong></p>
         <ul>
           <li><strong>Years Worked:</strong> Difference between retirement and career start age.</li>
@@ -112,7 +93,7 @@
           <li><strong>Adjusted Pension (Today's Value):</strong> Future monthly pension adjusted for inflation.</li>
           <li><strong>Estimated Net Pension:</strong> Approximate value after deducting 10% for health/care insurance and 10% income tax.</li>
           <li><strong>Adjusted Net Pension (Today's Value):</strong> Net pension adjusted for inflation (what it would be worth in today’s money).</li>
-          <li><strong>Private ETF Value:</strong> Total saved from monthly and/or annual ETF contributions with compound growth, minus 12.5% capital gains tax on profit.</li>
+          <li><strong>Private ETF Value:</strong> Total amount saved from monthly ETF contributions with compound growth.</li>
         </ul>
         <p class="note">🧠 <strong>Note:</strong> The average long-term inflation rate in Germany is approximately 2% per year.</p>
 
@@ -122,104 +103,63 @@
           <li><strong>Health Insurance (KVdR):</strong> Around 7.3% plus ~1.6% supplemental. Paid fully by the retiree.</li>
           <li><strong>Long-Term Care Insurance (Pflegeversicherung):</strong> Typically around 3.4% as of 2024.</li>
         </ul>
-
-        <p class="note">📌 <strong>Disclaimer:</strong> These are approximate estimates. Actual pension values may vary depending on factors like career breaks, parental leave, part-time employment, or statutory changes.</p>
       </div>
     </div>
   </div>
 
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script>
-    const translations = {
-      en: {
-        title: "German Pension Estimator",
-        estimate: "Estimate Pension",
-        careerStart: "Career Start Age:",
-        retirementAge: "Retirement Age:",
-        annualIncome: "Expected Annual Income (€):",
-        avgIncome: "Average National Income (€):",
-        inflation: "Expected Annual Inflation Rate (%):",
-        etfMonthly: "Monthly ETF Contribution (€):",
-        etfAnnual: "Annual ETF Contribution (€):",
-        etfReturn: "Expected Annual ETF Return (%):",
-        placeholders: {
-          careerStart: "e.g. 25",
-          retirementAge: "e.g. 67",
-          annualIncome: "e.g. 40000",
-          inflation: "e.g. 2 (optional)",
-          etfMonthly: "e.g. 200 (optional)",
-          etfAnnual: "e.g. 2400 (optional)",
-          etfReturn: "e.g. 6 (optional)"
-        }
-      },
-      fr: {
-        title: "Calculateur de retraite allemand",
-        estimate: "Estimer la retraite",
-        careerStart: "Âge de début de carrière :",
-        retirementAge: "Âge de la retraite :",
-        annualIncome: "Revenu annuel attendu (€) :",
-        avgIncome: "Revenu national moyen (€) :",
-        inflation: "Taux d'inflation annuel prévu (%) :",
-        etfMonthly: "Cotisation mensuelle ETF (€) :",
-        etfAnnual: "Cotisation annuelle ETF (€) :",
-        etfReturn: "Rendement annuel prévu de l’ETF (%) :",
-        placeholders: {
-          careerStart: "ex. 25",
-          retirementAge: "ex. 67",
-          annualIncome: "ex. 40000",
-          inflation: "ex. 2 (optionnel)",
-          etfMonthly: "ex. 200 (optionnel)",
-          etfAnnual: "ex. 2400 (optionnel)",
-          etfReturn: "ex. 6 (optionnel)"
-        }
-      },
-      de: {
-        title: "Deutscher Rentenrechner",
-        estimate: "Rente berechnen",
-        careerStart: "Berufseinstiegsalter:",
-        retirementAge: "Rentenalter:",
-        annualIncome: "Erwartetes Jahreseinkommen (€):",
-        avgIncome: "Durchschnittliches Einkommen (€):",
-        inflation: "Erwartete jährliche Inflationsrate (%):",
-        etfMonthly: "Monatlicher ETF-Beitrag (€):",
-        etfAnnual: "Jährlicher ETF-Beitrag (€):",
-        etfReturn: "Erwartete jährliche ETF-Rendite (%):",
-        placeholders: {
-          careerStart: "z.B. 25",
-          retirementAge: "z.B. 67",
-          annualIncome: "z.B. 40000",
-          inflation: "z.B. 2 (optional)",
-          etfMonthly: "z.B. 200 (optional)",
-          etfAnnual: "z.B. 2400 (optional)",
-          etfReturn: "z.B. 6 (optional)"
-        }
+    function calculatePension() {
+      const careerStartAge = parseInt(document.getElementById("careerStartAge").value);
+      const retirementAge = parseInt(document.getElementById("retirementAge").value);
+      const annualIncome = parseFloat(document.getElementById("annualIncome").value);
+      const avgIncome = parseFloat(document.getElementById("avgIncome").value);
+      const inflationRateInput = parseFloat(document.getElementById("inflationRate").value);
+      const etfContribution = parseFloat(document.getElementById("etfContribution").value);
+      const etfReturn = parseFloat(document.getElementById("etfReturn").value);
+      const pensionValue = 40.79;
+
+      if (isNaN(careerStartAge) || isNaN(retirementAge) || isNaN(annualIncome) || isNaN(avgIncome)) {
+        alert("Please fill in all fields correctly.");
+        return;
       }
-    };
 
-    function switchLanguage() {
-      const lang = document.getElementById('languageSelect').value;
-      const t = translations[lang];
+      const yearsWorked = retirementAge - careerStartAge;
+      if (yearsWorked <= 0) {
+        alert("Retirement age must be greater than career start age.");
+        return;
+      }
 
-      document.title = t.title;
-      document.querySelector('h1').innerText = t.title;
-      document.querySelector('button').innerText = t.estimate;
+      const pointsPerYear = annualIncome / avgIncome;
+      const totalPoints = yearsWorked * pointsPerYear;
+      const monthlyPension = totalPoints * pensionValue;
 
-      document.querySelector("label[for='careerStartAge']").innerText = t.careerStart;
-      document.querySelector("label[for='retirementAge']").innerText = t.retirementAge;
-      document.querySelector("label[for='annualIncome']").innerText = t.annualIncome;
-      document.querySelector("label[for='avgIncome']").innerText = t.avgIncome;
-      document.querySelector("label[for='inflationRate']").innerText = t.inflation;
-      document.querySelector("label[for='etfMonthly']").innerText = t.etfMonthly;
-      document.querySelector("label[for='etfAnnual']").innerText = t.etfAnnual;
-      document.querySelector("label[for='etfReturn']").innerText = t.etfReturn;
+      let adjustedPension = monthlyPension;
+      let adjustedNetPension = monthlyPension * 0.80;
+      if (!isNaN(inflationRateInput) && inflationRateInput > 0) {
+        adjustedPension = monthlyPension / Math.pow(1 + inflationRateInput / 100, yearsWorked);
+        adjustedNetPension = monthlyPension * 0.80 / Math.pow(1 + inflationRateInput / 100, yearsWorked);
+      }
 
-      document.getElementById("careerStartAge").placeholder = t.placeholders.careerStart;
-      document.getElementById("retirementAge").placeholder = t.placeholders.retirementAge;
-      document.getElementById("annualIncome").placeholder = t.placeholders.annualIncome;
-      document.getElementById("inflationRate").placeholder = t.placeholders.inflation;
-      document.getElementById("etfMonthly").placeholder = t.placeholders.etfMonthly;
-      document.getElementById("etfAnnual").placeholder = t.placeholders.etfAnnual;
-      document.getElementById("etfReturn").placeholder = t.placeholders.etfReturn;
+      const netPension = monthlyPension * 0.80;
+
+      let etfFutureValue = 0;
+      if (!isNaN(etfContribution) && !isNaN(etfReturn) && etfContribution > 0 && etfReturn > 0) {
+        const r = etfReturn / 100;
+        const n = yearsWorked;
+        const annualContribution = etfContribution * 12;
+        etfFutureValue = annualContribution * ((Math.pow(1 + r, n) - 1) / r);
+      }
+
+      document.getElementById("yearsWorked").innerText = yearsWorked;
+      document.getElementById("pointsPerYear").innerText = pointsPerYear.toFixed(2);
+      document.getElementById("totalPoints").innerText = totalPoints.toFixed(2);
+      document.getElementById("monthlyPension").innerText = monthlyPension.toFixed(2);
+      document.getElementById("adjustedPension").innerText = adjustedPension.toFixed(2);
+      document.getElementById("netPension").innerText = netPension.toFixed(2);
+      document.getElementById("adjustedNetPension").innerText = adjustedNetPension.toFixed(2);
+      document.getElementById("etfFutureValue").innerText = etfFutureValue.toFixed(2);
+
+      document.getElementById("results").style.display = "block";
     }
   </script>
 </body>
