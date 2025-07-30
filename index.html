@@ -90,7 +90,6 @@
 
         <div id="etfSection">
           <p><strong>📊 Private ETF Value at Retirement:</strong> €<span id="etfFutureValue"></span></p>
-          <p><strong>📆 Monthly Value if Withdrawn Over 20 Years:</strong> €<span id="etfMonthlyValue"></span></p>
         </div>
 
         <p><strong>📘 Explanation of Fields:</strong></p>
@@ -102,6 +101,7 @@
           <li><strong>Adjusted Pension (Today's Value):</strong> Future monthly pension adjusted for inflation.</li>
           <li><strong>Estimated Net Pension:</strong> Approximate value after deducting 10% for health/care insurance and 10% income tax.</li>
           <li><strong>Adjusted Net Pension (Today's Value):</strong> Net pension adjusted for inflation (what it would be worth in today’s money).</li>
+          <li><strong>Private ETF Value:</strong> Shows the total amount you would accumulate from monthly ETF contributions with compound interest.</li>
         </ul>
         <p class="note">🧠 <strong>Note:</strong> The average long-term inflation rate in Germany is approximately 2% per year.</p>
 
@@ -151,13 +151,11 @@
       const netPension = monthlyPension * 0.80;
 
       let etfFutureValue = 0;
-      let etfMonthly = 0;
       if (!isNaN(etfContribution) && !isNaN(etfReturn) && etfContribution > 0 && etfReturn > 0) {
         const r = etfReturn / 100;
         const n = yearsWorked;
         const annualContribution = etfContribution * 12;
         etfFutureValue = annualContribution * ((Math.pow(1 + r, n) - 1) / r);
-        etfMonthly = etfFutureValue / (20 * 12);
       }
 
       document.getElementById("yearsWorked").innerText = yearsWorked;
@@ -168,7 +166,6 @@
       document.getElementById("netPension").innerText = netPension.toFixed(2);
       document.getElementById("adjustedNetPension").innerText = adjustedNetPension.toFixed(2);
       document.getElementById("etfFutureValue").innerText = etfFutureValue.toFixed(2);
-      document.getElementById("etfMonthlyValue").innerText = etfMonthly.toFixed(2);
 
       document.getElementById("etfSection").style.display = document.getElementById("showCombined").checked ? "block" : "none";
       document.getElementById("results").style.display = "block";
