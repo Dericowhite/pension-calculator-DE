@@ -6,12 +6,14 @@
   <meta http-equiv="Pragma" content="no-cache" />
   <meta http-equiv="Expires" content="0" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>German Pension Calculator</title>
+  <title>German Pension Estimator</title>
   <style>
     body {
       font-family: Arial, sans-serif;
-      margin: 40px;
-      max-width: 1000px;
+      margin: 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
     }
     label, input {
       display: block;
@@ -26,27 +28,33 @@
       padding: 10px 15px;
       font-size: 16px;
     }
+    .container {
+      display: flex;
+      flex-direction: row;
+      justify-content: space-between;
+      width: 100%;
+    }
+    .left, .right {
+      width: 48%;
+    }
     .result, .explanation {
-      padding: 15px;
+      margin-top: 20px;
+      padding: 10px;
       border: 1px solid #ccc;
+    }
+    canvas {
       margin-top: 20px;
     }
-    .content {
-      display: flex;
-      gap: 20px;
-      align-items: flex-start;
-    }
-    #pensionChart {
-      width: 400px !important;
-      height: 300px !important;
+    .hidden {
+      display: none;
     }
   </style>
 </head>
 <body>
   <h1>German Pension Estimator</h1>
 
-  <label for="careerStart">Career Start Year:</label>
-  <input type="number" id="careerStart" placeholder="e.g. 2015" />
+  <label for="careerStartAge">Career Start Age:</label>
+  <input type="number" id="careerStartAge" placeholder="e.g. 25" />
 
   <label for="retirementAge">Retirement Age:</label>
   <input type="number" id="retirementAge" placeholder="e.g. 67" />
@@ -62,127 +70,104 @@
 
   <button onclick="calculatePension()">Estimate Pension</button>
 
-  <div class="content">
-    <div style="flex: 1;">
-      <div class="result" id="resultBox" style="display:none">
+  <div class="container">
+    <div class="left">
+      <div class="result hidden" id="resultBox">
         <p><strong>Years Worked:</strong> <span id="yearsWorked"></span></p>
         <p><strong>Pension Points/Year:</strong> <span id="pointsPerYear"></span></p>
         <p><strong>Total Pension Points:</strong> <span id="totalPoints"></span></p>
         <p><strong>Estimated Monthly Pension:</strong> €<span id="monthlyPension"></span></p>
-        <p id="adjustedPensionRow" style="display:none;"><strong>Adjusted Pension (Today's Value):</strong> €<span id="adjustedPension"></span></p>
-        <p id="netPensionRow" style="display:none;"><strong>Estimated Net Pension (After Tax + Insurance):</strong> €<span id="netPension"></span></p>
-        <p id="adjustedNetPensionRow" style="display:none;"><strong>Adjusted Net Pension (Today's Value):</strong> €<span id="adjustedNetPension"></span></p>
+        <p id="adjustedPensionRow" class="hidden"><strong>Adjusted Pension (Today's Value):</strong> €<span id="adjustedPension"></span></p>
+        <p id="netPensionRow" class="hidden"><strong>Estimated Net Pension (After Tax + Insurance):</strong> €<span id="netPension"></span></p>
+        <p id="adjustedNetPensionRow" class="hidden"><strong>Adjusted Net Pension (Today's Value):</strong> €<span id="adjustedNetPension"></span></p>
       </div>
 
-      <!-- Graph Canvas -->
-      <canvas id="pensionChart" style="display:none;"></canvas>
+      <canvas id="pensionChart" width="500" height="250" class="hidden"></canvas>
     </div>
 
-    <div class="explanation" id="explanationBox" style="display:none; flex: 1;">
-      <p style="font-style: italic; font-size: 14px; color: #555;">📘 Explanation of Fields:</p>
-      <ul style="font-size: 14px; color: #333;">
+    <div class="right explanation hidden" id="explanationBox">
+      <p><strong>📃 Explanation of Fields:</strong></p>
+      <ul>
         <li><strong>Years Worked:</strong> Number of years between career start and retirement age.</li>
         <li><strong>Pension Points/Year:</strong> Your income divided by the average national income (€50,493).</li>
         <li><strong>Total Pension Points:</strong> Points per year × years worked.</li>
         <li><strong>Estimated Monthly Pension:</strong> Total points × €39.32 (value per point as of July 2024).</li>
         <li><strong>Adjusted Pension (Today's Value):</strong> Future monthly pension adjusted for inflation.</li>
-        <li><strong>Estimated Net Pension:</strong> Approximate value after deducting 10% for health/care insurance and 10% income tax.</li>
+        <li><strong>Estimated Net Pension:</strong> Approximate value after deducting 10% for health/insurance and 10% income tax (adjustable).</li>
         <li><strong>Adjusted Net Pension (Today's Value):</strong> Net pension adjusted for inflation (what it would be worth in today’s money).</li>
       </ul>
-
-      <p style="font-size: 13px; color: #555; margin-top: 10px;">
-        ℹ️ Note: The average long-term inflation rate in Germany is approximately 2% per year.
-      </p>
-
-      <div style="font-size: 13px; color: #333; background: #f9f9f9; padding: 10px; border-left: 4px solid #ccc; margin-top: 15px;">
-        <p><strong>💡 Net Pension Deductions Explained:</strong></p>
-        <ul>
-          <li><strong>Income Tax (Einkommensteuer):</strong> Pension is partially taxable and will be fully taxable by 2040.</li>
-          <li><strong>Health Insurance (KVdR):</strong> Around 7.3% + supplemental ~1.6%. Paid entirely by the retiree.</li>
-          <li><strong>Long-Term Care Insurance (Pflegeversicherung):</strong> Around 3.4% as of 2024.</li>
-        </ul>
-      </div>
+      <p>⚠️ <em>Note: The average long-term inflation rate in Germany is approximately 2% per year.</em></p>
+      <p><strong>🔦 Net Pension Deductions Explained:</strong></p>
+      <ul>
+        <li><strong>Income Tax (Einkommensteuer):</strong> Pensions are partially taxable and will be fully taxable by 2040.</li>
+        <li><strong>Health Insurance (KVdR):</strong> Around 7.3% + supplemental ~1.6%. Paid entirely by the retiree.</li>
+        <li><strong>Long-Term Care Insurance (Pflegeversicherung):</strong> Typically around 3.4% as of 2024.</li>
+      </ul>
     </div>
   </div>
 
-  <!-- Load Chart.js -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
   <script>
     let pensionChart;
-
     function calculatePension() {
-      const careerStart = parseInt(document.getElementById("careerStart").value);
+      const careerStartAge = parseInt(document.getElementById("careerStartAge").value);
       const retirementAge = parseInt(document.getElementById("retirementAge").value);
       const annualIncome = parseFloat(document.getElementById("annualIncome").value);
       const avgIncome = parseFloat(document.getElementById("avgIncome").value);
+      const inflationRate = parseFloat(document.getElementById("inflationRate").value) / 100;
       const pensionValue = 39.32;
 
-      if (isNaN(careerStart) || isNaN(retirementAge) || isNaN(annualIncome) || isNaN(avgIncome)) {
+      if (isNaN(careerStartAge) || isNaN(retirementAge) || isNaN(annualIncome) || isNaN(avgIncome)) {
         alert("Please fill in all fields correctly.");
         return;
       }
 
-      const currentYear = new Date().getFullYear();
-      const currentAge = currentYear - careerStart;
-      const yearsWorked = retirementAge - currentAge;
-
+      const yearsWorked = retirementAge - careerStartAge;
       if (yearsWorked <= 0) {
-        alert("Invalid input: Retirement age must be greater than your current age.");
+        alert("Invalid input: Retirement age must be greater than career start age.");
         return;
       }
 
       const pointsPerYear = annualIncome / avgIncome;
       const totalPoints = yearsWorked * pointsPerYear;
       const monthlyPension = totalPoints * pensionValue;
-
-      const inflationRateInput = document.getElementById("inflationRate").value;
-      const inflationRate = parseFloat(inflationRateInput) / 100;
-      let adjustedPension = null;
-      if (!isNaN(inflationRate) && inflationRate > 0) {
-        adjustedPension = monthlyPension / Math.pow(1 + inflationRate, yearsWorked);
-        document.getElementById("adjustedPension").innerText = adjustedPension.toFixed(2);
-        document.getElementById("adjustedPensionRow").style.display = "block";
-      } else {
-        document.getElementById("adjustedPensionRow").style.display = "none";
-      }
+      const netRate = 0.80;
+      const netPension = monthlyPension * netRate;
+      const adjustedPension = !isNaN(inflationRate) ? monthlyPension / Math.pow(1 + inflationRate, yearsWorked) : null;
+      const adjustedNetPension = !isNaN(inflationRate) ? netPension / Math.pow(1 + inflationRate, yearsWorked) : null;
 
       document.getElementById("yearsWorked").innerText = yearsWorked;
       document.getElementById("pointsPerYear").innerText = pointsPerYear.toFixed(2);
       document.getElementById("totalPoints").innerText = totalPoints.toFixed(2);
       document.getElementById("monthlyPension").innerText = monthlyPension.toFixed(2);
-
-      const netRate = 0.80;
-      const netPension = monthlyPension * netRate;
       document.getElementById("netPension").innerText = netPension.toFixed(2);
-      document.getElementById("netPensionRow").style.display = "block";
+      document.getElementById("netPensionRow").classList.remove("hidden");
 
-      if (!isNaN(inflationRate) && inflationRate > 0) {
-        const adjustedNetPension = netPension / Math.pow(1 + inflationRate, yearsWorked);
+      if (adjustedPension !== null) {
+        document.getElementById("adjustedPension").innerText = adjustedPension.toFixed(2);
+        document.getElementById("adjustedPensionRow").classList.remove("hidden");
         document.getElementById("adjustedNetPension").innerText = adjustedNetPension.toFixed(2);
-        document.getElementById("adjustedNetPensionRow").style.display = "block";
-      } else {
-        document.getElementById("adjustedNetPensionRow").style.display = "none";
+        document.getElementById("adjustedNetPensionRow").classList.remove("hidden");
       }
 
-      document.getElementById("resultBox").style.display = "block";
-      document.getElementById("explanationBox").style.display = "block";
+      document.getElementById("resultBox").classList.remove("hidden");
+      document.getElementById("explanationBox").classList.remove("hidden");
 
-      // Generate data for chart
+      // Graph
+      const currentYear = new Date().getFullYear();
+      const startYear = currentYear;
       const years = [];
       const nominalData = [];
       const adjustedData = [];
+
       for (let i = 0; i <= yearsWorked; i++) {
-        const year = currentYear + i;
+        const year = startYear + i;
         years.push(year);
         const pensionAtYear = (pointsPerYear * (i + 1)) * pensionValue;
         nominalData.push(pensionAtYear);
-        adjustedData.push(!isNaN(inflationRate) && inflationRate > 0
-          ? pensionAtYear / Math.pow(1 + inflationRate, i)
-          : pensionAtYear);
+        adjustedData.push(!isNaN(inflationRate) ? pensionAtYear / Math.pow(1 + inflationRate, i) : pensionAtYear);
       }
 
-      // Create or update chart
       const ctx = document.getElementById('pensionChart').getContext('2d');
       if (pensionChart) pensionChart.destroy();
       pensionChart = new Chart(ctx, {
@@ -201,8 +186,8 @@
               label: 'Inflation-adjusted Pension (€)',
               data: adjustedData,
               borderColor: 'green',
-              borderWidth: 2,
               borderDash: [5, 5],
+              borderWidth: 2,
               fill: false
             }
           ]
@@ -217,7 +202,7 @@
         }
       });
 
-      document.getElementById("pensionChart").style.display = "block";
+      document.getElementById("pensionChart").classList.remove("hidden");
     }
   </script>
 </body>
