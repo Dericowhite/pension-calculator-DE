@@ -21,7 +21,7 @@
       padding: 8px;
       width: 300px;
     }
-    button {
+    button, select {
       margin-top: 15px;
       padding: 10px 15px;
       font-size: 16px;
@@ -41,10 +41,21 @@
       margin-top: 10px;
       color: #444;
     }
+    canvas {
+      max-width: 500px;
+      max-height: 300px;
+    }
   </style>
 </head>
 <body>
   <h1>German Pension Estimator</h1>
+
+  <label for="languageSelect">🌐 Language:</label>
+  <select id="languageSelect" onchange="switchLanguage()">
+    <option value="en">English</option>
+    <option value="de">Deutsch</option>
+    <option value="fr">Français</option>
+  </select>
 
   <label for="careerStartAge">Career Start Age:</label>
   <input type="number" id="careerStartAge" placeholder="e.g. 25" />
@@ -75,6 +86,7 @@
   <div id="results" style="display:none;">
     <div class="flex-container">
       <div class="box">
+        <!-- Pension details output -->
         <p><strong>Years Worked:</strong> <span id="yearsWorked"></span></p>
         <p><strong>Pension Points/Year:</strong> <span id="pointsPerYear"></span></p>
         <p><strong>Total Pension Points:</strong> <span id="totalPoints"></span></p>
@@ -88,6 +100,9 @@
           <p><em>Compound growth means you earn interest not only on your contributions but also on the interest already earned. This can significantly increase your final savings over time.</em></p>
         </div>
 
+        <canvas id="comparisonChart"></canvas>
+
+        <!-- Explanatory text -->
         <p><strong>📘 Explanation of Fields:</strong></p>
         <ul>
           <li><strong>Years Worked:</strong> Difference between retirement and career start age.</li>
@@ -107,77 +122,34 @@
           <li><strong>Health Insurance (KVdR):</strong> Around 7.3% plus ~1.6% supplemental. Paid fully by the retiree.</li>
           <li><strong>Long-Term Care Insurance (Pflegeversicherung):</strong> Typically around 3.4% as of 2024.</li>
         </ul>
+
+        <p class="note">📌 <strong>Disclaimer:</strong> These are approximate estimates. Actual pension values may vary depending on factors like career breaks, parental leave, part-time employment, or statutory changes.</p>
       </div>
     </div>
   </div>
 
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script>
-    function calculatePension() {
-      const careerStartAge = parseInt(document.getElementById("careerStartAge").value);
-      const retirementAge = parseInt(document.getElementById("retirementAge").value);
-      const annualIncome = parseFloat(document.getElementById("annualIncome").value);
-      const avgIncome = parseFloat(document.getElementById("avgIncome").value);
-      const inflationRateInput = parseFloat(document.getElementById("inflationRate").value);
-      const etfMonthly = parseFloat(document.getElementById("etfMonthly").value);
-      const etfAnnual = parseFloat(document.getElementById("etfAnnual").value);
-      const etfReturn = parseFloat(document.getElementById("etfReturn").value);
-      const pensionValue = 40.79;
-
-      if (isNaN(careerStartAge) || isNaN(retirementAge) || isNaN(annualIncome) || isNaN(avgIncome)) {
-        alert("Please fill in all fields correctly.");
-        return;
+    const translations = {
+      en: {
+        title: "German Pension Estimator",
+        estimate: "Estimate Pension"
+      },
+      de: {
+        title: "Deutscher Rentenrechner",
+        estimate: "Rente berechnen"
+      },
+      fr: {
+        title: "Calculateur de retraite allemand",
+        estimate: "Estimer la retraite"
       }
+    };
 
-      const yearsWorked = retirementAge - careerStartAge;
-      if (yearsWorked <= 0) {
-        alert("Retirement age must be greater than career start age.");
-        return;
-      }
-
-      const pointsPerYear = annualIncome / avgIncome;
-      const totalPoints = yearsWorked * pointsPerYear;
-      const monthlyPension = totalPoints * pensionValue;
-
-      let adjustedPension = monthlyPension;
-      let adjustedNetPension = monthlyPension * 0.80;
-      if (!isNaN(inflationRateInput) && inflationRateInput > 0) {
-        adjustedPension = monthlyPension / Math.pow(1 + inflationRateInput / 100, yearsWorked);
-        adjustedNetPension = monthlyPension * 0.80 / Math.pow(1 + inflationRateInput / 100, yearsWorked);
-      }
-
-      const netPension = monthlyPension * 0.80;
-
-      let etfFutureValue = 0;
-      if (!isNaN(etfReturn) && etfReturn > 0) {
-        const r = etfReturn / 100;
-        const n = yearsWorked;
-        let totalAnnual = 0;
-
-        if (!isNaN(etfMonthly) && etfMonthly > 0) {
-          totalAnnual += etfMonthly * 12;
-        }
-        if (!isNaN(etfAnnual) && etfAnnual > 0) {
-          totalAnnual += etfAnnual;
-        }
-
-        if (totalAnnual > 0) {
-          const grossValue = totalAnnual * ((Math.pow(1 + r, n) - 1) / r);
-          const profit = grossValue - (totalAnnual * n);
-          const tax = profit * 0.125;
-          etfFutureValue = grossValue - tax;
-        }
-      }
-
-      document.getElementById("yearsWorked").innerText = yearsWorked;
-      document.getElementById("pointsPerYear").innerText = pointsPerYear.toFixed(2);
-      document.getElementById("totalPoints").innerText = totalPoints.toFixed(2);
-      document.getElementById("monthlyPension").innerText = monthlyPension.toFixed(2);
-      document.getElementById("adjustedPension").innerText = adjustedPension.toFixed(2);
-      document.getElementById("netPension").innerText = netPension.toFixed(2);
-      document.getElementById("adjustedNetPension").innerText = adjustedNetPension.toFixed(2);
-      document.getElementById("etfFutureValue").innerText = etfFutureValue.toFixed(2);
-
-      document.getElementById("results").style.display = "block";
+    function switchLanguage() {
+      const lang = document.getElementById('languageSelect').value;
+      document.title = translations[lang].title;
+      document.querySelector('h1').innerText = translations[lang].title;
+      document.querySelector('button').innerText = translations[lang].estimate;
     }
   </script>
 </body>
