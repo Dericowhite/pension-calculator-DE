@@ -165,6 +165,7 @@
       let html = `<h3>ETF Projection Results</h3>`;
       html += `<p><strong>Private ETF Value at Retirement (Before Tax):</strong> €${etfFutureValue.toFixed(2)}</p>`;
       html += `<p><strong>Private ETF Value at Retirement (After Tax):</strong> €${etfAfterTax.toFixed(2)}</p>`;
+      html += `<p><strong>💡 Compound Growth:</strong> Investment gains are reinvested each year, allowing savings to grow faster over time. ETF returns average 6% annually, though some years may perform significantly better.</p>`;
 
       document.getElementById("etfResultBox").innerHTML = html;
       document.getElementById("etfResultBox").style.display = "block";
