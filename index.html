@@ -7,7 +7,6 @@
   <meta http-equiv="Expires" content="0" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>German Pension Calculator</title>
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -37,8 +36,9 @@
       color: #0077cc;
       font-weight: bold;
     }
-    canvas {
-      margin-top: 30px;
+    .note {
+      margin-top: 20px;
+      font-size: 14px;
     }
   </style>
 </head>
@@ -72,8 +72,6 @@
   <button onclick="calculatePension()">Estimate Pension</button>
 
   <div class="result" id="resultBox" style="display:none"></div>
-  <canvas id="pensionChart" width="400" height="200" style="display:none"></canvas>
-  <canvas id="depreciationChart" width="400" height="200" style="display:none"></canvas>
 
   <script>
     function calculatePension() {
@@ -114,7 +112,6 @@
         ? netPension / Math.pow(1 + inflationRate, yearsWorked)
         : null;
 
-      // ETF Growth
       let etfFutureValue = 0;
       for (let year = 1; year <= yearsWorked; year++) {
         etfFutureValue = (etfFutureValue + etfMonthly * 12 + etfAnnual) * (1 + etfReturn);
@@ -148,70 +145,16 @@
         </ul>
         <p><em>📌 These are approximate estimates. Actual pension values may vary depending on factors like career growth, parental leave, or part-time work.</em></p>
         <p><strong>💡 Compound Growth:</strong> Investment gains are reinvested each year, allowing savings to grow faster over time. ETF returns average 6% annually, though some years may perform significantly better.</p>
+        <p><strong>💡 Net Pension Deductions Explained:</strong></p>
+        <ul>
+          <li><strong>Income Tax (Einkommensteuer):</strong> Pensions are partially taxable based on your retirement year and total income. The taxable portion increases annually and will reach 100% in 2040.</li>
+          <li><strong>Health Insurance (KVdR):</strong> Around 7.3% plus ~1.6% supplemental. Paid fully by the retiree.</li>
+          <li><strong>Long-Term Care Insurance (Pflegeversicherung):</strong> Typically around 3.4% as of 2024.</li>
+        </ul>
       </div>`;
 
       document.getElementById("resultBox").innerHTML = html;
       document.getElementById("resultBox").style.display = "block";
-
-      if (etfAfterTax > 0) {
-        const ctx1 = document.getElementById('pensionChart').getContext('2d');
-        document.getElementById('pensionChart').style.display = 'block';
-        new Chart(ctx1, {
-          type: 'bar',
-          data: {
-            labels: ['Monthly Pension (Net)', 'Private ETF (Before Tax)', 'Private ETF (After Tax)'],
-            datasets: [{
-              label: 'Pension Comparison (€)',
-              data: [netPension * 12, etfFutureValue, etfAfterTax],
-              backgroundColor: ['#4e79a7', '#76b041', '#f28e2b']
-            }]
-          },
-          options: {
-            scales: {
-              y: { beginAtZero: true }
-            }
-          }
-        });
-      }
-
-      // Line Chart for Depreciation
-      if (!isNaN(inflationRate) && inflationRate > 0) {
-        const ctx2 = document.getElementById('depreciationChart').getContext('2d');
-        document.getElementById('depreciationChart').style.display = 'block';
-
-        const nominal = Array.from({ length: yearsWorked }, () => monthlyPension);
-        const adjusted = Array.from({ length: yearsWorked }, (_, i) => monthlyPension / Math.pow(1 + inflationRate, i + 1));
-
-        new Chart(ctx2, {
-          type: 'line',
-          data: {
-            labels: [...Array(yearsWorked).keys()].map(i => `Year ${i + 1}`),
-            datasets: [
-              {
-                label: 'Nominal Pension (€)',
-                data: nominal,
-                borderColor: '#0077cc',
-                fill: false
-              },
-              {
-                label: "Adjusted Pension (€)",
-                data: adjusted,
-                borderColor: '#f45b69',
-                borderDash: [5, 5],
-                fill: false
-              }
-            ]
-          },
-          options: {
-            responsive: true,
-            scales: {
-              y: {
-                beginAtZero: true
-              }
-            }
-          }
-        });
-      }
     }
   </script>
 </body>
