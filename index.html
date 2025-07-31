@@ -60,6 +60,11 @@
   <label for="inflationRate">Expected Annual Inflation Rate (%):</label>
   <input type="number" id="inflationRate" placeholder="e.g. 2 (optional)" />
 
+  <button onclick="calculatePension()">Estimate Pension</button>
+  <div class="result" id="resultBox" style="display:none"></div>
+
+  <h2 style="margin-top: 50px;">Private ETF Investment Simulator</h2>
+
   <label for="etfMonthly">Monthly ETF Contribution (€):</label>
   <input type="number" id="etfMonthly" placeholder="e.g. 200 (optional)" />
 
@@ -69,9 +74,8 @@
   <label for="etfReturn">Expected Annual ETF Return (%):</label>
   <input type="number" id="etfReturn" placeholder="e.g. 6 (optional)" />
 
-  <button onclick="calculatePension()">Estimate Pension</button>
-
-  <div class="result" id="resultBox" style="display:none"></div>
+  <button onclick="simulateETF()">Simulate ETF Growth</button>
+  <div class="result" id="etfResultBox" style="display:none"></div>
 
   <script>
     function calculatePension() {
@@ -80,9 +84,7 @@
       const annualIncome = parseFloat(document.getElementById("annualIncome").value);
       const avgIncome = parseFloat(document.getElementById("avgIncome").value);
       const inflationRateInput = document.getElementById("inflationRate").value;
-      const etfMonthly = parseFloat(document.getElementById("etfMonthly").value) || 0;
-      const etfAnnual = parseFloat(document.getElementById("etfAnnual").value) || 0;
-      const etfReturn = parseFloat(document.getElementById("etfReturn").value) / 100 || 0;
+
       const pensionValue = 40.79;
 
       if (isNaN(careerStartAge) || isNaN(retirementAge) || isNaN(annualIncome) || isNaN(avgIncome)) {
@@ -112,12 +114,6 @@
         ? netPension / Math.pow(1 + inflationRate, yearsWorked)
         : null;
 
-      let etfFutureValue = 0;
-      for (let year = 1; year <= yearsWorked; year++) {
-        etfFutureValue = (etfFutureValue + etfMonthly * 12 + etfAnnual) * (1 + etfReturn);
-      }
-      const etfAfterTax = etfFutureValue * 0.875;
-
       let html = `<h2>Estimated Results</h2>`;
       html += `<p><strong>Years Worked:</strong> ${yearsWorked}</p>`;
       html += `<p><strong>Pension Points/Year:</strong> ${pointsPerYear.toFixed(2)}</p>`;
@@ -126,10 +122,6 @@
       if (adjustedPension !== null) html += `<p><strong>Adjusted Pension (Today's Value):</strong> €${adjustedPension.toFixed(2)}</p>`;
       html += `<p><strong>Estimated Net Pension (After Tax + Insurance):</strong> €${netPension.toFixed(2)}</p>`;
       if (adjustedNetPension !== null) html += `<p><strong>Adjusted Net Pension (Today's Value):</strong> €${adjustedNetPension.toFixed(2)}</p>`;
-      if (etfFutureValue > 0) {
-        html += `<p><strong class="highlight">📊 Private ETF Value at Retirement (Before Tax):</strong> €${etfFutureValue.toFixed(2)}</p>`;
-        html += `<p><strong class="highlight">📊 Private ETF Value at Retirement (After Tax):</strong> €${etfAfterTax.toFixed(2)}</p>`;
-      }
 
       html += `<div class="note">
         <strong>📘 Explanation of Fields:</strong>
@@ -141,7 +133,6 @@
           <li><strong>Adjusted Pension (Today's Value):</strong> Future monthly pension adjusted for inflation.</li>
           <li><strong>Estimated Net Pension:</strong> Approximate value after deducting 10% for health/care insurance and 10% income tax.</li>
           <li><strong>Adjusted Net Pension (Today's Value):</strong> Net pension adjusted for inflation (what it would be worth in today’s money).</li>
-          <li><strong>Private ETF Value:</strong> Approximate value saved from monthly or annual ETF contributions with compound growth (before and after 12.5% tax).</li>
         </ul>
         <p><em>📌 These are approximate estimates. Actual pension values may vary depending on factors like career growth, parental leave, or part-time work.</em></p>
         <p><strong>💡 Compound Growth:</strong> Investment gains are reinvested each year, allowing savings to grow faster over time. ETF returns average 6% annually, though some years may perform significantly better.</p>
@@ -155,6 +146,28 @@
 
       document.getElementById("resultBox").innerHTML = html;
       document.getElementById("resultBox").style.display = "block";
+    }
+
+    function simulateETF() {
+      const careerStartAge = parseInt(document.getElementById("careerStartAge").value);
+      const retirementAge = parseInt(document.getElementById("retirementAge").value);
+      const etfMonthly = parseFloat(document.getElementById("etfMonthly").value) || 0;
+      const etfAnnual = parseFloat(document.getElementById("etfAnnual").value) || 0;
+      const etfReturn = parseFloat(document.getElementById("etfReturn").value) / 100 || 0;
+
+      const years = retirementAge - careerStartAge;
+      let etfFutureValue = 0;
+      for (let year = 1; year <= years; year++) {
+        etfFutureValue = (etfFutureValue + etfMonthly * 12 + etfAnnual) * (1 + etfReturn);
+      }
+      const etfAfterTax = etfFutureValue * 0.875;
+
+      let html = `<h3>ETF Projection Results</h3>`;
+      html += `<p><strong>Private ETF Value at Retirement (Before Tax):</strong> €${etfFutureValue.toFixed(2)}</p>`;
+      html += `<p><strong>Private ETF Value at Retirement (After Tax):</strong> €${etfAfterTax.toFixed(2)}</p>`;
+
+      document.getElementById("etfResultBox").innerHTML = html;
+      document.getElementById("etfResultBox").style.display = "block";
     }
   </script>
 </body>
