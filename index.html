@@ -73,6 +73,7 @@
 
   <div class="result" id="resultBox" style="display:none"></div>
   <canvas id="pensionChart" width="400" height="200" style="display:none"></canvas>
+  <canvas id="depreciationChart" width="400" height="200" style="display:none"></canvas>
 
   <script>
     function calculatePension() {
@@ -128,7 +129,8 @@
       if (adjustedPension !== null) html += `<p><strong>Adjusted Pension (Today's Value):</strong> €${adjustedPension.toFixed(2)}</p>`;
       html += `<p><strong>Estimated Net Pension (After Tax + Insurance):</strong> €${netPension.toFixed(2)}</p>`;
       if (adjustedNetPension !== null) html += `<p><strong>Adjusted Net Pension (Today's Value):</strong> €${adjustedNetPension.toFixed(2)}</p>`;
-      if (etfAfterTax > 0) {
+      if (etfFutureValue > 0) {
+        html += `<p><strong class="highlight">📊 Private ETF Value at Retirement (Before Tax):</strong> €${etfFutureValue.toFixed(2)}</p>`;
         html += `<p><strong class="highlight">📊 Private ETF Value at Retirement (After Tax):</strong> €${etfAfterTax.toFixed(2)}</p>`;
       }
 
@@ -142,7 +144,7 @@
           <li><strong>Adjusted Pension (Today's Value):</strong> Future monthly pension adjusted for inflation.</li>
           <li><strong>Estimated Net Pension:</strong> Approximate value after deducting 10% for health/care insurance and 10% income tax.</li>
           <li><strong>Adjusted Net Pension (Today's Value):</strong> Net pension adjusted for inflation (what it would be worth in today’s money).</li>
-          <li><strong>Private ETF Value:</strong> Approximate value saved from monthly or annual ETF contributions with compound growth (after 12.5% tax).</li>
+          <li><strong>Private ETF Value:</strong> Approximate value saved from monthly or annual ETF contributions with compound growth (before and after 12.5% tax).</li>
         </ul>
         <p><em>📌 These are approximate estimates. Actual pension values may vary depending on factors like career growth, parental leave, or part-time work.</em></p>
         <p><strong>💡 Compound Growth:</strong> Investment gains are reinvested each year, allowing savings to grow faster over time. ETF returns average 6% annually, though some years may perform significantly better.</p>
@@ -152,19 +154,56 @@
       document.getElementById("resultBox").style.display = "block";
 
       if (etfAfterTax > 0) {
-        const ctx = document.getElementById('pensionChart').getContext('2d');
+        const ctx1 = document.getElementById('pensionChart').getContext('2d');
         document.getElementById('pensionChart').style.display = 'block';
-        new Chart(ctx, {
+        new Chart(ctx1, {
           type: 'bar',
           data: {
-            labels: ['Monthly Pension (Net)', 'Private ETF Lump Sum (After Tax)'],
+            labels: ['Monthly Pension (Net)', 'Private ETF (Before Tax)', 'Private ETF (After Tax)'],
             datasets: [{
               label: 'Pension Comparison (€)',
-              data: [netPension * 12, etfAfterTax],
-              backgroundColor: ['#4e79a7', '#f28e2b']
+              data: [netPension * 12, etfFutureValue, etfAfterTax],
+              backgroundColor: ['#4e79a7', '#76b041', '#f28e2b']
             }]
           },
           options: {
+            scales: {
+              y: { beginAtZero: true }
+            }
+          }
+        });
+      }
+
+      // Line Chart for Depreciation
+      if (!isNaN(inflationRate) && inflationRate > 0) {
+        const ctx2 = document.getElementById('depreciationChart').getContext('2d');
+        document.getElementById('depreciationChart').style.display = 'block';
+
+        const nominal = Array.from({ length: yearsWorked }, () => monthlyPension);
+        const adjusted = Array.from({ length: yearsWorked }, (_, i) => monthlyPension / Math.pow(1 + inflationRate, i + 1));
+
+        new Chart(ctx2, {
+          type: 'line',
+          data: {
+            labels: [...Array(yearsWorked).keys()].map(i => `Year ${i + 1}`),
+            datasets: [
+              {
+                label: 'Nominal Pension (€)',
+                data: nominal,
+                borderColor: '#0077cc',
+                fill: false
+              },
+              {
+                label: "Adjusted Pension (€)",
+                data: adjusted,
+                borderColor: '#f45b69',
+                borderDash: [5, 5],
+                fill: false
+              }
+            ]
+          },
+          options: {
+            responsive: true,
             scales: {
               y: {
                 beginAtZero: true
