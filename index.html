@@ -7,6 +7,7 @@
   <meta http-equiv="Expires" content="0" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>German Pension Calculator</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -30,6 +31,14 @@
       margin-top: 20px;
       padding: 10px;
       border: 1px solid #ccc;
+      font-size: 14px;
+    }
+    .highlight {
+      color: #0077cc;
+      font-weight: bold;
+    }
+    canvas {
+      margin-top: 30px;
     }
   </style>
 </head>
@@ -63,6 +72,7 @@
   <button onclick="calculatePension()">Estimate Pension</button>
 
   <div class="result" id="resultBox" style="display:none"></div>
+  <canvas id="pensionChart" width="400" height="200" style="display:none"></canvas>
 
   <script>
     function calculatePension() {
@@ -114,12 +124,12 @@
       html += `<p><strong>Years Worked:</strong> ${yearsWorked}</p>`;
       html += `<p><strong>Pension Points/Year:</strong> ${pointsPerYear.toFixed(2)}</p>`;
       html += `<p><strong>Total Pension Points:</strong> ${totalPoints.toFixed(2)}</p>`;
-      html += `<p><strong>Estimated Monthly Pension:</strong> €${monthlyPension.toFixed(2)}</p>`;
+      html += `<p><strong class="highlight">Estimated Monthly Pension:</strong> €${monthlyPension.toFixed(2)}</p>`;
       if (adjustedPension !== null) html += `<p><strong>Adjusted Pension (Today's Value):</strong> €${adjustedPension.toFixed(2)}</p>`;
       html += `<p><strong>Estimated Net Pension (After Tax + Insurance):</strong> €${netPension.toFixed(2)}</p>`;
       if (adjustedNetPension !== null) html += `<p><strong>Adjusted Net Pension (Today's Value):</strong> €${adjustedNetPension.toFixed(2)}</p>`;
       if (etfAfterTax > 0) {
-        html += `<p><strong>📊 Approximate Private ETF Investment (After Tax):</strong> €${etfAfterTax.toFixed(2)}</p>`;
+        html += `<p><strong class="highlight">📊 Private ETF Value at Retirement (After Tax):</strong> €${etfAfterTax.toFixed(2)}</p>`;
       }
 
       html += `<div class="note">
@@ -132,14 +142,37 @@
           <li><strong>Adjusted Pension (Today's Value):</strong> Future monthly pension adjusted for inflation.</li>
           <li><strong>Estimated Net Pension:</strong> Approximate value after deducting 10% for health/care insurance and 10% income tax.</li>
           <li><strong>Adjusted Net Pension (Today's Value):</strong> Net pension adjusted for inflation (what it would be worth in today’s money).</li>
-          <li><strong>Approximate Private ETF Investment:</strong> Total amount saved from monthly or annual ETF contributions with compound growth, taxed at 12.5%.</li>
+          <li><strong>Private ETF Value:</strong> Approximate value saved from monthly or annual ETF contributions with compound growth (after 12.5% tax).</li>
         </ul>
-        <p><em>📌 These are approximate estimates. Actual pension values may vary depending on factors like career breaks, parental leave, part-time employment, or statutory changes.</em></p>
-        <p><strong>💡 Compound Growth:</strong> ETF investments grow because returns are reinvested each year. A long-term average annual return of ~6% is often assumed, but some years may yield higher or lower returns depending on the market.</p>
+        <p><em>📌 These are approximate estimates. Actual pension values may vary depending on factors like career growth, parental leave, or part-time work.</em></p>
+        <p><strong>💡 Compound Growth:</strong> Investment gains are reinvested each year, allowing savings to grow faster over time. ETF returns average 6% annually, though some years may perform significantly better.</p>
       </div>`;
 
       document.getElementById("resultBox").innerHTML = html;
       document.getElementById("resultBox").style.display = "block";
+
+      if (etfAfterTax > 0) {
+        const ctx = document.getElementById('pensionChart').getContext('2d');
+        document.getElementById('pensionChart').style.display = 'block';
+        new Chart(ctx, {
+          type: 'bar',
+          data: {
+            labels: ['Monthly Pension (Net)', 'Private ETF Lump Sum (After Tax)'],
+            datasets: [{
+              label: 'Pension Comparison (€)',
+              data: [netPension * 12, etfAfterTax],
+              backgroundColor: ['#4e79a7', '#f28e2b']
+            }]
+          },
+          options: {
+            scales: {
+              y: {
+                beginAtZero: true
+              }
+            }
+          }
+        });
+      }
     }
   </script>
 </body>
